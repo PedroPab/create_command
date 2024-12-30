@@ -1,25 +1,24 @@
 #!/bin/bash
 
-# Crea un enlace simbólico para el comando
+# Crea un enlace simbólico o script ejecutable en /usr/local/bin
 create_symlink() {
   local dir="$1"
   local file="$2"
   local command="$3"
-
-  if [[ ! -f "$dir/$file" ]]; then
-    echo "Error: El archivo $file no existe en el directorio $dir."
-    exit 1
-  fi
-
   local target="/usr/local/bin/$command"
 
-  # Crear el archivo ejecutable en /usr/local/bin
-  sudo bash -c "cat <<EOF > $target
-#!/bin/bash
-cd \"$dir\" || exit 1
-./\"$file\" \"\$@\"
-EOF"
+  echo "Creando el comando '$command'..."
 
+  # Crear el archivo ejecutable
+  cat <<EOF | sudo tee "$target" >/dev/null
+#!/bin/bash
+cd "$dir" || exit 1
+./$file "\$@"
+EOF
+
+  # Asegurarse de que sea ejecutable
   sudo chmod +x "$target"
-  echo "Comando '$command' creado con éxito."
+
+  echo "El comando '$command' ha sido creado con éxito."
+  echo "Ahora puedes usar '$command' desde cualquier lugar para ejecutar el programa."
 }

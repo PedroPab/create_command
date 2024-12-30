@@ -1,5 +1,4 @@
 #!/bin/bash
-# create_command - Herramienta para crear comandos personalizados
 
 # Ruta absoluta a las bibliotecas
 LIB_DIR="/usr/local/lib/create_command"
@@ -13,15 +12,46 @@ fi
 # Incluir las funciones auxiliares
 source "$LIB_DIR/utils.sh"
 
-# Verificar argumentos
-if [[ "$#" -lt 2 ]]; then
-  echo "Uso: create_command <archivo_principal> <nombre_comando>"
+# Función para mostrar ayuda
+function show_help() {
+  echo "Uso: $0 [-d directorio] [-f archivo] [-n comando]"
+  echo "  -d directorio : Ubicación de la carpeta del programa (por defecto, el directorio actual del usuario)."
+  echo "  -f archivo    : Nombre del archivo principal del programa (obligatorio)."
+  echo "  -n comando    : Nombre del comando que quieres crear (obligatorio)."
+  exit 1
+}
+
+# Valores predeterminados
+DIRECTORIO="$PWD"
+
+# Parsear argumentos
+while getopts "d:f:n:h" opt; do
+  case "$opt" in
+  d) DIRECTORIO="$OPTARG" ;;
+  f) ARCHIVO="$OPTARG" ;;
+  n) COMANDO="$OPTARG" ;;
+  h) show_help ;;
+  *) show_help ;;
+  esac
+done
+
+# Validar que el archivo principal y el nombre del comando sean proporcionados
+if [[ -z "$ARCHIVO" || -z "$COMANDO" ]]; then
+  echo "Error: El archivo principal (-f) y el nombre del comando (-n) son obligatorios."
+  show_help
+fi
+
+# Validar que el directorio exista
+if [[ ! -d "$DIRECTORIO" ]]; then
+  echo "Error: El directorio '$DIRECTORIO' no existe."
   exit 1
 fi
 
-ARCHIVO="$1"
-COMANDO="$2"
-DIRECTORIO="${3:-$PWD}"
+# Validar que el archivo exista en el directorio
+if [[ ! -f "$DIRECTORIO/$ARCHIVO" ]]; then
+  echo "Error: El archivo '$ARCHIVO' no existe en el directorio '$DIRECTORIO'."
+  exit 1
+fi
 
 # Crear el comando usando la función de utils.sh
 create_symlink "$DIRECTORIO" "$ARCHIVO" "$COMANDO"
