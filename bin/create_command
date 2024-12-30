@@ -1,0 +1,27 @@
+#!/bin/bash
+# create_command - Herramienta para crear comandos personalizados
+
+# Ruta absoluta a las bibliotecas
+LIB_DIR="/usr/local/lib/create_command"
+
+# Verificar que las funciones auxiliares existan
+if [[ ! -f "$LIB_DIR/utils.sh" ]]; then
+  echo "Error: No se encontró $LIB_DIR/utils.sh"
+  exit 1
+fi
+
+# Incluir las funciones auxiliares
+source "$LIB_DIR/utils.sh"
+
+# Verificar argumentos
+if [[ "$#" -lt 2 ]]; then
+  echo "Uso: create_command <archivo_principal> <nombre_comando>"
+  exit 1
+fi
+
+ARCHIVO="$1"
+COMANDO="$2"
+DIRECTORIO="${3:-$PWD}"
+
+# Crear el comando usando la función de utils.sh
+create_symlink "$DIRECTORIO" "$ARCHIVO" "$COMANDO"
